@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prop Firm AI Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=1.0.2" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Prop Firm AI Trading System</p>
+        <h1>Trading Desk Visualizer</h1>
+      </div>
+      <div class="status-strip">
+        <span id="freeMode">Free mode</span>
+        <span id="apiStatus">API status</span>
+        <span id="marketMode">Market data</span>
+        <span id="chainStatus">Audit chain</span>
+        <span id="killSwitch">Kill switch</span>
+        <span id="dataStatus">Data health</span>
+        <button id="refreshNow" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="notice" id="runtimeNotice">
+        <strong>Loading mode</strong>
+        <p id="runtimeText">Checking whether the FastAPI server is available.</p>
+        <span id="lastRefresh">Last refresh: pending</span>
+      </section>
+
+      <section class="ticker-console">
+        <div>
+          <p class="label">Live Analyzer</p>
+          <h2>Choose a market</h2>
+        </div>
+        <form id="symbolForm" class="symbol-form">
+          <input id="symbolInput" name="symbol" value="AAPL" autocomplete="off" aria-label="Ticker symbol" />
+          <button type="submit">Analyze</button>
+        </form>
+        <div class="quick-symbols">
+          <button type="button" data-symbol="AAPL">AAPL</button>
+          <button type="button" data-symbol="NVDA">NVDA</button>
+          <button type="button" data-symbol="EURUSD">EUR/USD</button>
+          <button type="button" data-symbol="GBPUSD">GBP/USD</button>
+          <button type="button" data-symbol="BTC-USD">BTC</button>
+          <button type="button" data-symbol="ETH-USD">ETH</button>
+        </div>
+      </section>
+
+      <section class="regime-banner">
+        <div>
+          <p class="label">Market Regime</p>
+          <strong id="regimeHeadline">Waiting for watchlist scan</strong>
+        </div>
+        <div>
+          <p class="label">Actionable</p>
+          <strong id="actionableCount">0</strong>
+        </div>
+        <div>
+          <p class="label">Fresh / Stale</p>
+          <strong id="freshnessCount">0 / 0</strong>
+        </div>
+      </section>
+
+      <section class="decision-band">
+        <div>
+          <p class="label">Symbol</p>
+          <strong id="symbol">AAPL</strong>
+        </div>
+        <div>
+          <p class="label">Direction</p>
+          <strong id="direction">bullish</strong>
+        </div>
+        <div>
+          <p class="label">Rating</p>
+          <strong id="rating">Buy</strong>
+        </div>
+        <div>
+          <p class="label">Execution</p>
+          <strong id="execution">approved</strong>
+        </div>
+        <div>
+          <p class="label">Invalidation</p>
+          <strong id="invalidation">n/a</strong>
+        </div>
+        <div>
+          <p class="label">Price</p>
+          <strong id="price">$190.00</strong>
+        </div>
+      </section>
+
+      <section class="panel hybrid-panel">
+        <div class="panel-head">
+          <h2>Hybrid Execution Gate</h2>
+          <button id="refreshHybridGate" type="button">Run Full Gate</button>
+        </div>
+        <div class="metric-grid">
+          <div><span>Decision</span><strong id="hybridDecision">pending</strong></div>
+          <div><span>Brain</span><strong id="hybridBrain">pending</strong></div>
+          <div><span>Opportunity</span><strong id="hybridOpportunity">pending</strong></div>
+          <div><span>Live</span><strong id="hybridLive">disabled</strong></div>
+        </div>
+        <div id="hybridGate" class="spread-scanner"></div>
+      </section>
+
+      <section class="panel scanner-panel">
+        <div class="panel-head">
+          <h2>Best Setups Right Now</h2>
+          <span id="scannerStatus">loading watchlist</span>
+        </div>
+        <div id="scannerCards" class="scanner-cards"></div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>AI Confluence</h2>
+            <span id="confluenceStatus">waiting for agents</span>
+          </div>
+          <div id="confluenceMatrix" class="confluence-matrix"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Catalyst RAG Veto</h2>
+            <button id="refreshCatalyst" type="button">Check News</button>
+          </div>
+          <div class="metric-grid">
+            <div><span>Verdict</span><strong id="catalystVerdict">pending</strong></div>
+            <div><span>Confidence</span><strong id="catalystConfidence">pending</strong></div>
+            <div><span>LLM</span><strong id="catalystLlm">pending</strong></div>
+            <div><span>Prompt</span><strong id="catalystPrompt">pending</strong></div>
+          </div>
+          <div id="catalystVeto" class="spread-scanner"></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Free Macro Context</h2>
+            <button id="refreshMacro" type="button">Refresh Macro</button>
+          </div>
+          <div class="metric-grid">
+            <div><span>Gold Bias</span><strong id="macroGoldBias">pending</strong></div>
+            <div><span>Risk Bias</span><strong id="macroRiskBias">pending</strong></div>
+            <div><span>Provider</span><strong id="macroProvider">pending</strong></div>
+            <div><span>Warnings</span><strong id="macroWarnings">pending</strong></div>
+          </div>
+          <div id="macroContext" class="spread-scanner"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Options GEX</h2>
+            <button id="refreshGex" type="button">Refresh GEX</button>
+          </div>
+          <div class="arb-controls">
+            <label>
+              Options symbol
+              <input id="gexSymbolInput" value="SPY" autocomplete="off" />
+            </label>
+            <label>
+              Expirations
+              <input id="gexExpiryInput" value="2" autocomplete="off" />
+            </label>
+          </div>
+          <div class="metric-grid">
+            <div><span>Regime</span><strong id="gexRegime">pending</strong></div>
+            <div><span>Net GEX</span><strong id="gexNet">pending</strong></div>
+            <div><span>Spot</span><strong id="gexSpot">pending</strong></div>
+            <div><span>Status</span><strong id="gexStatus">pending</strong></div>
+          </div>
+          <div id="optionsGex" class="spread-scanner"></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>SEC Event Context</h2>
+            <button id="refreshSecFilings" type="button">Refresh Filings</button>
+          </div>
+          <div class="metric-grid">
+            <div><span>Company</span><strong id="secCompany">pending</strong></div>
+            <div><span>CIK</span><strong id="secCik">pending</strong></div>
+            <div><span>Event Risk</span><strong id="secEventRisk">pending</strong></div>
+            <div><span>Status</span><strong id="secStatus">pending</strong></div>
+          </div>
+          <div id="secFilingsPanel" class="spread-scanner"></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel chart-panel">
+          <div class="panel-head">
+            <h2>Live Price Chart</h2>
+            <span id="chartMeta">waiting for candles</span>
+          </div>
+          <div id="priceChart" class="price-chart"></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Evidence Board</h2>
+            <span id="evidenceStatus">model evidence</span>
+          </div>
+          <div class="evidence-grid">
+            <div>
+              <strong>Bullish</strong>
+              <ul id="bullishEvidence"></ul>
+            </div>
+            <div>
+              <strong>Bearish</strong>
+              <ul id="bearishEvidence"></ul>
+            </div>
+            <div>
+              <strong>Conflicting / Warnings</strong>
+              <ul id="conflictingEvidence"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Computed Features</h2>
+            <span id="featureStatus">features</span>
+          </div>
+          <div id="featureGrid" class="feature-grid"></div>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Probability</h2>
+            <span id="horizon">5D</span>
+          </div>
+          <div class="prob-row">
+            <span>Up</span>
+            <div class="bar"><i id="upBar"></i></div>
+            <strong id="upProb">68%</strong>
+          </div>
+          <div class="prob-row">
+            <span>Down</span>
+            <div class="bar danger"><i id="downBar"></i></div>
+            <strong id="downProb">18%</strong>
+          </div>
+          <div class="prob-row">
+            <span>Neutral</span>
+            <div class="bar neutral"><i id="neutralBar"></i></div>
+            <strong id="neutralProb">14%</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Paper Order</h2>
+            <span id="orderStatus">filled</span>
+          </div>
+          <div class="metric-grid">
+            <div><span>Quantity</span><strong id="orderQty">0</strong></div>
+            <div><span>Notional</span><strong id="notional">$0</strong></div>
+            <div><span>Risk</span><strong id="riskDollars">$0</strong></div>
+            <div><span>Slippage</span><strong id="slippage">0 bps</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <details class="panel simulation-panel advanced-panel">
+        <summary>
+          <span>
+            <strong>Advanced Research</strong>
+            <em>paper simulation and crypto microstructure monitor</em>
+          </span>
+        </summary>
+
+        <section class="advanced-stack">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Paper Trading Simulation</h2>
+              <button id="runSimulation" type="button">Run Paper Simulation</button>
+            </div>
+
+            <div class="arb-controls" style="margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+              <label>
+                Direction:
+                <select id="simDirection" style="margin-left: 6px;">
+                  <option value="">All Directions</option>
+                  <option value="BUY">Long Only (BUY)</option>
+                  <option value="SELL">Short Only (SELL)</option>
+                </select>
+              </label>
+              <label>
+                Regime:
+                <select id="simRegime" style="margin-left: 6px;">
+                  <option value="">All Regimes</option>
+                  <option value="trending_up">Trending Up</option>
+                  <option value="high_volatility">High Volatility</option>
+                  <option value="ranging">Ranging</option>
+                  <option value="trending_down">Trending Down</option>
+                </select>
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="simExcludeCrypto" />
+                Exclude Crypto
+              </label>
+            </div>
+
+            <div class="metric-grid simulation-summary">
+              <div><span>Portfolio Win Rate</span><strong id="simWinRate">pending</strong></div>
+              <div><span>Total Trades</span><strong id="simTrades">pending</strong></div>
+              <div><span>Total R</span><strong id="simTotalR">pending</strong></div>
+              <div><span>Average R</span><strong id="simAverageR">pending</strong></div>
+            </div>
+            <p id="simWarning" class="simulation-warning">This replays the current heuristic on historical candles. It is paper simulation, not proof of live edge.</p>
+
+            <div id="simWalkForward" class="walk-forward-split" style="display: none; margin-bottom: 18px;">
+              <h3>Portfolio Walk-Forward Splits</h3>
+              <table class="split-table">
+                <thead>
+                  <tr>
+                    <th>Phase</th>
+                    <th>Trades</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Win Rate</th>
+                    <th>Total R</th>
+                    <th>Avg R</th>
+                    <th>Max DD</th>
+                  </tr>
+                </thead>
+                <tbody id="simWalkForwardRows"></tbody>
+              </table>
+            </div>
+
+            <div id="simScorecards" class="walk-forward-split" style="display: none; margin-bottom: 18px;">
+              <h3>Segment Expectancy Scorecards</h3>
+              <table class="split-table">
+                <thead>
+                  <tr>
+                    <th>Segment</th>
+                    <th>Trades</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Win Rate</th>
+                    <th>Total R</th>
+                    <th>Avg R</th>
+                    <th>Max DD</th>
+                  </tr>
+                </thead>
+                <tbody id="simScorecardRows"></tbody>
+              </table>
+            </div>
+
+            <div id="simEquityChart" class="price-chart" style="display: none; margin-bottom: 18px; min-height: 200px;"></div>
+            <div id="simulationResults" class="simulation-results"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Crypto Execution Quality Monitor</h2>
+              <div class="button-row">
+                <button id="refreshArbitrage" type="button">Refresh Monitor</button>
+                <button id="probeWebsocket" type="button">Probe Websockets</button>
+                <button id="probeMicrostructure" type="button">Microstructure</button>
+              </div>
+            </div>
+            <div class="arb-controls">
+              <label>
+                Binance
+                <input id="binanceSymbolInput" value="BTCUSDT" autocomplete="off" />
+              </label>
+              <input id="polymarketTokenInput" type="hidden" />
+            </div>
+            <div class="metric-grid">
+              <div><span>Binance Latency</span><strong id="binanceLatency">pending</strong></div>
+              <div><span>Cross Venue</span><strong id="polyLatency">off</strong></div>
+              <div><span>Latency Gap</span><strong id="latencyGap">n/a</strong></div>
+              <div><span>WS Events / Pair Watch</span><strong id="wsEvents">pending</strong></div>
+            </div>
+            <div id="spreadScanner" class="spread-scanner"></div>
+            <div id="websocketScanner" class="spread-scanner"></div>
+            <div id="microstructurePanel" class="spread-scanner"></div>
+          </div>
+        </section>
+      </details>
+    </main>
+
+    <script src="app.js?v=1.0.2"></script>
+  </body>
+</html>
